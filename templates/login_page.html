@@ -1,0 +1,14 @@
+{%extends 'home_page.html'%}
+<!-- Login Page-->
+
+{%block content%}
+<!-- Add CSS later-->
+<h1>Welcome to the login Page </h1>
+
+<form method='POST' action = '/userpage'>
+    Type in username:<input name="username">
+    Type in password:<input name = "password" >
+    <Button class = 'button' type = 'submit'> Submit</Button>
+</form>
+
+{%endblock%}

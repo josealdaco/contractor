@@ -1,0 +1,13 @@
+.title_nav{
+    background-color: #FFFFF;
+}
+.button{
+    position:relative;
+    color: black;
+    padding:2% 5%;
+    border-radius:8px
+    float:right;
+}
+body{
+    background-color: #2c3e50;
+}
