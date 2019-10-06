@@ -1,0 +1,14 @@
+{%extends 'home_page.html'%}
+
+
+{%block content%}
+
+<h1>Welcome to create account</h1>
+
+<form method = 'POST' action = '/login_page'>
+    Type in username<input name = 'username' type = 'text' id = 'password'>
+    Type in password<input name = 'password' type = 'text' id = 'password'>
+    <button class = 'button' type = 'submit'>Submit</button>
+</form>
+
+{%endblock%}

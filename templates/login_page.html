@@ -6,9 +6,15 @@
 <h1>Welcome to the login Page </h1>
 
 <form method='POST' action = '/userpage'>
-    Type in username:<input name="username">
-    Type in password:<input name = "password" >
+    Type in username:<input name="username" id = "username" >
+    Type in password:<input name = "password" id = "password">
     <Button class = 'button' type = 'submit'> Submit</Button>
+    {%if error == 'True'%}
+    <p>ACCOUNT NOT FOUND, CHECK USERNAME/PASSWORD</p>
+    {%endif%}
 </form>
+<a href = "/create_user"> creataccount</a>
+
+
 
 {%endblock%}
