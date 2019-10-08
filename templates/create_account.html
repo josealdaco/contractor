@@ -10,5 +10,7 @@
     Type in password<input name = 'password' type = 'text' id = 'password'>
     <button class = 'button' type = 'submit'>Submit</button>
 </form>
-
+{%if error == 'True'%}
+<p>Username exists, change username</p>
+{%endif%}
 {%endblock%}

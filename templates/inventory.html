@@ -1,0 +1,30 @@
+{%extends 'home_page.html'%}
+
+
+
+{%block content%}
+<nav>
+<form method = 'GET' action = '/inventory/form'>
+<Button type = 'submit'>Add Item</Button>
+</form>
+
+{% for item in items%}
+<div>
+    <img src = {{item.image}} width="50px" height="50px">
+    <p> {{item.description}}</p>
+    <form method= 'POST' action = "/delete">
+        <input type = 'hidden' name = "_id" value = {{item._id}}>
+        <Button type = 'submit'>Delete</Button>
+
+    </form>
+    <form method = 'POST' action = '/inventory/form'>
+        <input type = 'hidden' name = "_id" value = {{item._id}}>
+        <Button type = 'submit'>Edit </Button>
+
+    </form>
+</div>
+
+{%endfor%}
+</nav>
+
+{%endblock%}

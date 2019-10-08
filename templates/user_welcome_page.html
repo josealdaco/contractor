@@ -3,6 +3,37 @@
 
 {%block content%}
 <nav>
+    <form method='GET' action = '/cart'>
+        <Button >GO TO CART</Button>
+        <p>ITEMS IN CART:{{cart_size}}</p>
+    </form>
 <h1>Welcome {{user.user}}<h1>
+{% for admin in admins%}
+    {% if admin == user.user%}
+    <form method = 'GET' action = '/inventory/show'>
+    <Button>Edit inventory</Button>
+    </form>
+    {%endif%}
+{%endfor%}
 </nav>
+<p>Items of the day</p>
+{%for item in items%}
+<!-- Here we are creating a container per item online -->
+    <div>
+        <img src = "{{item.image}}" width="50px" height="50px">
+        <p>{{item.name}}</p>
+        <p>{{item.description}}</p>
+        <form method ='POST' action = '/view/{{item._id}}'>
+            <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+            <!-- View item-->
+            <Button type = 'submit'> VIEW</Button>
+        </form>
+        <form method = 'POST' action='/add_cart'>
+            <!-- Instantly add to cart-->
+            <input type = 'hidden' name='_id' value = '{{item._id}}'>
+            <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+            <Button type = 'submit'> ADD  TO CART</Button>
+        </form>
+    </div>
+{%endfor%}
 {%endblock%}
