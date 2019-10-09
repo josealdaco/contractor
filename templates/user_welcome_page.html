@@ -3,15 +3,19 @@
 
 {%block content%}
 <nav>
-    <form method='GET' action = '/cart'>
+    <form method='POST' action = '/show/cart'>
+        <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
         <Button >GO TO CART</Button>
-        <p>ITEMS IN CART:{{cart_size}}</p>
     </form>
+        <p>ITEMS IN CART:{{cart_size}}</p>
 <h1>Welcome {{user.user}}<h1>
 {% for admin in admins%}
     {% if admin == user.user%}
     <form method = 'GET' action = '/inventory/show'>
     <Button>Edit inventory</Button>
+    </form>
+    <form method = 'GET' action = '/show_users'>
+        <Button type = 'submit'>Go to accounts</Button>
     </form>
     {%endif%}
 {%endfor%}
@@ -25,6 +29,7 @@
         <p>{{item.description}}</p>
         <form method ='POST' action = '/view/{{item._id}}'>
             <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+            <input type = 'hidden' name = 'result' value = {{result}}>
             <!-- View item-->
             <Button type = 'submit'> VIEW</Button>
         </form>
@@ -32,6 +37,7 @@
             <!-- Instantly add to cart-->
             <input type = 'hidden' name='_id' value = '{{item._id}}'>
             <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+            <input type = 'hidden' name = 'result' value = True>
             <Button type = 'submit'> ADD  TO CART</Button>
         </form>
     </div>

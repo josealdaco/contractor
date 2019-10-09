@@ -1,0 +1,12 @@
+{%extends 'home_page.html'%}
+
+
+{%block content%}
+<form  method='POST' action = '/delete_all'>
+<Button type = 'submit'>Delete all Accounts</Button>
+<p>List of all acounts</p>
+{% for user in users%}
+<p>{{user.user}}</p>
+{%endfor%}
+</form>
+{%endblock%}

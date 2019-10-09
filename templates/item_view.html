@@ -2,21 +2,34 @@
 
 
 {%block content%}
+
 <p> {{current_item.name}}</p>
 <img src = {{current_item.image}} width="100px" height="100px">
 <p>{{current_item.description}}</p>
+{%for item in cart_items%}
+{% if item._id == current_item._id%}
+<form method = 'POST' action = '/delete/{{current_item._id}}'>
+    <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+    <input type = 'hidden' name = 'result' value = 'True'>
+    <Button type = 'submit'> Remove Item from cart</Button>
+</form>
+
 <form method='POST' action='/show/cart'>
+    <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+    <!-- We are sending route that we are viewing cart and adding an item-->
+    <Button type = 'submit'>CHANGE QUANTITY</Button>
+</form>
+{%endif%}
+{%endfor%}
+{%if result == 'False'%}
+<form method='POST' action='/add_cart'>
     <input type = 'hidden' name = '_id' value = '{{current_item._id}}'>
+    <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+
     <!-- We are sending route that we are viewing cart and adding an item-->
     <input type = 'hidden' name = 'appending_cart' value = 'TRUE'>
     <Button type = 'submit'>ADD TO CART</Button>
 </form>
-{%for item in cart_items%}
-{% if item._id == current_item._id%}
-<p>REMOVE ITEM </p> <!-- ADD ROUTE TO THIS LATER -->
-<p> Your cart items ID{{item._id}}</p>
-<p>Iamge id {{current_item._id}}</p>
-
 {%endif%}
-{%endfor%}
+
 {%endblock%}

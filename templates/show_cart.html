@@ -1,0 +1,38 @@
+{%extends 'home_page.html'%}
+
+
+
+{%block content%}
+<p>THERE ARE YOUR ITEMS</p>
+<!-- Going over cart items-->
+{%for cart_items in cart%}
+<div>
+    <img src = "{{cart_items['item'].image}}" width="50px" height="50px">
+    <p>{{cart_items['item'].name}}</p>
+    <p>{{cart_items['item'].description}}</p>
+    <p>QUANITY AMOUNT {{cart_items['amount']}}</p>
+    <form method = 'POST' action = '/adding_items'>
+        <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+        <input type = 'hidden' name = 'item_id' value = '{{cart_items["item"]._id}}'>
+        Type amount you want to add:<input type = 'text' name = 'quantity'>
+    <Button type = 'submit'>Submit</Button>
+    </form>
+
+
+
+    <form method = 'POST' action = '/remove/cart/item'>
+        <input type = 'hidden' name = 'item_id' value = '{{cart_items["item"]._id}}'>
+        <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+        <Button type = 'submit'>REMOVE</Button>
+    </form>
+</div>
+
+{%endfor%}
+
+<!-- WORK ON THE ROUTE FOR THE CHECKOUT BUTTON LATER-->
+<form method = 'POST' action = '/{{user._id}}/checkout'>
+        <p>Total Price:{{total_price}}</p>
+        <Button>Purchase</Button>
+</form>
+
+{%endblock%}
