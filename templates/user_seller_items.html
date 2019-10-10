@@ -1,0 +1,35 @@
+{% extends 'home_page.html'%}
+
+{%block content%}
+
+<nav>
+    <form method = 'POST' action = '/create/seller/item'>
+        <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+        <Button type = 'submit'>ADD ITEM</Button>
+
+    </form>
+</nav>
+
+
+{% for item in user_item%}
+    <div>
+
+    <img src = '{{item.image}}' alt = "This is a pic of something" width="100px" height="100px">
+    <p> Item name: {{item.name}}</p>
+    <p> Item price: {{item.price}} </p>
+    <p>Item description: {{item.description}}</p>
+    <form method = 'POST' action = '/seller/items'>
+        <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+        <input type = 'hidden' name = 'name' value = '{{item.name}}'>
+        <input type = 'hidden' name = 'image' value = '{{item.image}}'>
+        <input type = 'hidden' name = 'price' value = '{{item.price}}'>
+        <input type = 'hidden' name = 'description' value = '{{item.description}}'>
+        {%if pending == True%}
+        <p>Pending approval</p>
+        {%else%}
+        <Button type = 'submit'>VERIFY Publish</Button>
+        {%endif%}
+    </form>
+    </div>
+    {%endfor%}
+{%endblock%}

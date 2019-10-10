@@ -7,6 +7,8 @@
 <img src = {{current_item.image}} width="100px" height="100px">
 <p>{{current_item.description}}</p>
 {% if checker == True%}
+
+
 <form method='POST' action='/show/cart'>
     <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
     <!-- We are sending route that we are viewing cart and adding an item-->

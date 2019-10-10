@@ -1,0 +1,14 @@
+{% extends 'home_page.html'%}
+
+
+
+{%block content%}
+
+<form method='POST' action = '/update/personal_item'>
+    <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+    {%include 'official_form.html'%}
+    <Button type = 'submit'> SUBMIT</Button>
+</form>
+
+
+{%endblock%}

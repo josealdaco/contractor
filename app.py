@@ -7,7 +7,7 @@ db = client.contractor
 admin_list = db.admins  # Creating JSON obj
 users = db.users
 items = db.items
-
+seller_items = db.seller_items
 """
     BLOCKER: CANNOT CHANGE URL BECAUSE THE RENDER IS DONE WITH POST,
     REDIRECT_URL CAN ONLY REDIRECT TO HTML THAT WAS RENDERED WITH 'GET'
@@ -67,14 +67,26 @@ def inventory():
 def publish_inventory():
     """ Approve Item and Display it """
     new = request.form.get('new')
+    new_approval = request.form.get('approval')
+    seller = users.find_one({'_id': ObjectId(request.form.get('seller'))})
     id = request.form.get('_id')
-    item = {
-        'image': request.form.get('image'),
-        'name': request.form.get('name'),
-        'price': request.form.get('price'),
-        'description': request.form.get('description')
-    }
-    if new == 'True':  # If admin is making new item
+    if seller is None:
+        item = {
+            'seller': 'Amazonia',
+            'image': request.form.get('image'),
+            'name': request.form.get('name'),
+            'price': request.form.get('price'),
+            'description': request.form.get('description')
+        }
+    else:
+        item = {
+            'seller': seller['user'],
+            'image': request.form.get('image'),
+            'name': request.form.get('name'),
+            'price': request.form.get('price'),
+            'description': request.form.get('description')
+            }
+    if new == 'True' or new_approval == 'True':  # If admin is making new item
         items.insert_one(item)
         return redirect(url_for('inventory'))
     elif new is None:  # If admin is editing Item
@@ -349,33 +361,75 @@ def add_current_item():
         return render_template('user_welcome_page.html', user=user, admins=admins, items=items.find(), cart_size=cart_size)
 
 
-@app.route('/delete/<current_item_id>', methods=['POST'])
-def delete_current_item(current_item_id):
-    """ Deleting current item in VIEW"""
-    item_id = current_item_id
-    user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
-    cart = user['cart']
-    result = False
-    for index in range(len(cart)):  # Simalar to While(condition)if(delete):break
-        print("INDEX:", index)
-        if(cart[index]['_id'] == ObjectId(item_id)):
-            print("DELETING THIS ITEM:", cart[index])
-            cart.pop(index)
-            break
+@app.route('/seller/items', methods=['POST'])
+def verify():
+    """Will verify items desired to be listed """
+    if request.method == 'POST':
+        user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
+        item_name = request.form.get('name')
+        item_image = request.form.get('image')
+        item_price = request.form.get('price')
+        item_description = request.form.get('description')
+        sell_item = {
+            'seller': user['_id'],  # Get Seller ID
+            'image': item_image,
+            'name': item_name,
+            'price': item_price,
+            'description': item_description
+        }
+        seller_items.insert_one(sell_item)
+        pending = True  # Pending for approval
+        return render_template('user_seller_items.html', pending=pending, user=user, user_item=user['personal_item'])
 
-    # Update user with current cart
+@app.route('/create/seller/item', methods=['POST', 'GET'])
+def create_item():
+    user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
+    return render_template('new_seller_item.html', user=user)
+
+
+@app.route('/update/personal_item', methods=['POST'])
+def update_personalitem():
+    user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
+    item_name = request.form.get('name')
+    item_image = request.form.get('image')
+    item_price = request.form.get('price')
+    item_description = request.form.get('description')
+    personal_cart = user['personal_item']
+    sell_item = {
+        'seller': user['_id'],  # Get Seller ID
+        'image': item_image,
+        'name': item_name,
+        'price': item_price,
+        'description': item_description
+    }
+
+    personal_cart.append(sell_item)
+
     user_update = {
         'user': user['user'],
         'password': user['password'],
-        'status': user['status'],
-        'cart': cart,
+        'status': user['status'],  # decides if user is offline
+        'cart': user['cart'],
+        'personal_item': personal_cart,
         'admin_status': user['admin_status']
         }
     users.update_one({'_id': ObjectId(user['_id'])},
                     {'$set': user_update})
-    admins = ["jeff", "bezos"]
-    cart_size = len(user['cart'])
-    return render_template('user_welcome_page.html', user=user, admins=admins, items=items.find(), cart_size=cart_size, result=result)
+
+    return render_template('user_seller_items.html', user_item=user['personal_item'], user=user)
+
+
+@app.route('/render/user_items', methods=['POST'])
+def user_items():
+    user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
+    print("This is the user who wants to sell!!", user)
+    items = user['personal_item']
+    return render_template('user_seller_items.html', user_item=items, user=user)
+
+
+@app.route('/seller/stuff', methods=['GET'])
+def seller_stuff():
+    return render_template('seller_items.html', seller_items=seller_items.find())
 
 
 @app.route('/remove/cart/item', methods=['POST'])
