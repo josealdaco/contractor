@@ -52,6 +52,7 @@ def login_page():
             return redirect(url_for('create_account', error=error))
         else:
             #  If the desired username and password don't exist, insert
+            print("new user creation:", new_user)
             users.insert_one(new_user)
             return redirect(url_for('login_page'))
 
