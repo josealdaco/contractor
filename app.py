@@ -21,9 +21,10 @@ def home_page():
     """ Display home page """
     return render_template('welcome_page.html')
 
+# Add IP address later
+#def ip_adress():
 
-def ip_adress():
-    return jsonify({'ip': request.remote_addr}), 200
+#    return jsonify({'ip': request.remote_addr}), 200
 
 
 @app.route('/login_page', methods=['GET', 'POST'])
@@ -41,8 +42,6 @@ def login_page():
             'cart': [],
             'personal_item': [],
             'admin_status': False,
-            'ip_address': ip_adress()
-
         }
         print("This is the desired new account:", new_user)
         user = users.find_one({'user': new_user['user']})  # Check username
