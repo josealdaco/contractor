@@ -22,6 +22,10 @@ def home_page():
     return render_template('welcome_page.html')
 
 
+def ip_adress():
+    return jsonify({'ip': request.remote_addr}), 200
+
+
 @app.route('/login_page', methods=['GET', 'POST'])
 def login_page():
     """ If user just created a profile it will create it and redirect to login
@@ -37,7 +41,7 @@ def login_page():
             'cart': [],
             'personal_item': [],
             'admin_status': False,
-            'ip_address': jsonify({'ip': request.remote_addr})
+            'ip_address': ip_adress()
 
         }
         print("This is the desired new account:", new_user)
