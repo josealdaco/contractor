@@ -1,9 +1,11 @@
 from flask import Flask, request, render_template, redirect, url_for
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import os
 
-client = MongoClient()
-db = client.contractor
+host = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/contractor')
+client = MongoClient(host=f'{host}?retryWrites=false')
+db = client.get_default_database()
 admin_list = db.admins  # Creating JSON obj
 users = db.users
 items = db.items
@@ -558,4 +560,4 @@ def logging_in():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+      app.run(debug=True, host='0.0.0.0', port=os.environ.get('PORT', 5000))
