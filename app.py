@@ -391,6 +391,7 @@ def verify():
         pending = True  # Pending for approval
         return render_template('user_seller_items.html', pending=pending, user=user, user_item=user['personal_item'])
 
+
 @app.route('/create/seller/item', methods=['POST', 'GET'])
 def create_item():
     user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
