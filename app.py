@@ -31,8 +31,9 @@ def login_page():
         new_user = {
             'user': request.form.get('username'),
             'password': request.form.get('password'),
-            'status': False,
+            'status': False,  # decides if user is offline
             'cart': [],
+            'personal_item': [],
             'admin_status': False
 
         }
@@ -184,12 +185,15 @@ def deleting_item():
 def view_item(item_id):
     current_item = items.find_one({'_id': ObjectId(item_id)})
     user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
-    cart_items = user['cart']
+    checker = False
+    for check in user['cart']:
+        if ObjectId(check['_id']) == ObjectId(current_item['_id']):
+            checker = True
     result = request.form.get('result')
     if(result is None):
         result = False
-    print("This is the status of result:", result)
-    return render_template('item_view.html', current_item=current_item, cart_items=cart_items, user=user, result=result)
+    print("This is the status of checker:", checker)
+    return render_template('item_view.html', current_item=current_item, user=user, result=result, checker=checker)
 
 
 @app.route('/adding_items', methods=['POST'])
@@ -199,6 +203,9 @@ def add_item_number():
     item = items.find_one({'_id': ObjectId(item_id)})
     amount = int(request.form.get('quantity'))
     cart = user['cart']
+    print("This is cart before the update")
+    for x in cart:
+        print(x)
     find_index = 0
     for carts in cart:
         if(carts['_id'] == ObjectId(item_id)):
@@ -218,7 +225,96 @@ def add_item_number():
     users.update_one({'_id': ObjectId(user['_id'])},
                     {'$set': user_update})
 
-    return render_template('show_cart.html', user=user, cart=user['cart'])
+    # redifining cart
+    #cart = user['cart']
+    duplicate_list = []
+    cart = user['cart']
+    cart_clone = cart
+    print("This is the cart len:", len(cart_clone), len(cart))
+    index_for_duplicate = 0
+    first = False
+    total_amount = 0
+    index_two = 0
+    for x in cart_clone:
+        print("This is cart  clone :", x, '\n', '\n')
+
+    for y in cart:
+        print("This is cart :", y, '\n', '\n')
+
+    for current_item in cart:
+        print("number:", 1)
+        for item2 in cart_clone:
+            print("This is the item_2 item:", item2)
+            if current_item['_id'] == item2['_id']:
+                if first is True:
+                    print("FIRST HAS BECOME TRUE")
+                    check = False
+                    for x in duplicate_list:
+                        if ObjectId(current_item['_id']) != ObjectId(x['_id']):
+                            check = False
+                        else:
+                            check = True
+                    if (check is False):
+                        print("Comparing IDS:", current_item['_id'], ":", duplicate_list[index_for_duplicate]['_id'])
+                        #dict_clone = {
+                        #    '_id': current_item['_id'],
+                        #    'image': current_item['image'],
+                        #    'name': current_item['_id'],
+                        #    'price': current_item['price'],
+                        #    'description': current_item['description']
+                        #}
+                        #duplicate_list.insert(index_two, dict_clone)
+                        duplicate_list.append(current_item)
+                        #index_for_duplicate += 1
+                elif index_for_duplicate == 0 and first is False:
+                    duplicate_list.append(current_item)
+                    first = True
+                    index_two += 1
+    # Filter once more
+    res_list = []
+    append_index = 0  # This is so we don't insert to last by default
+    for i in range(len(duplicate_list)):
+        if duplicate_list[i] not in duplicate_list[i + 1:]:
+            res_list.insert(append_index, duplicate_list[i])
+            append_index
+    print("This should only include non duplicate", res_list)
+    duplicate_amount = []
+    for x in res_list:
+        duplicate_amount.append(0)
+    index_for_total = 0
+    max = 0
+    second = False
+    print("Length of cart:", len(res_list))
+    print("This is the ids of clones:", res_list)
+    if len(res_list) != 0:
+        for duplicate in res_list:
+            print("The ones we are checking:", duplicate)
+            for current_item_2 in cart:
+                if duplicate['_id'] == current_item_2['_id']:
+                    total_amount += 1
+                max += 1
+                print(max)
+            if max == len(cart):
+                print("This is the total amount:", total_amount)
+                if second is True:
+                    index_for_total += 1
+                print("This is the index:", index_for_total)
+                duplicate_amount[index_for_total] = {
+                        'item': duplicate,
+                        'amount': total_amount
+                        }
+                total_amount = 0
+                max = 0
+                second = True
+    print("This is the list of amount per clone:", duplicate_amount)
+    # Finding total cost for all items
+    total_price = 0
+    for item in duplicate_amount:
+        total_price += float(item['item']['price'])
+        total_price *= float(item['amount'])
+    print("This is the final product:", duplicate_amount)
+
+    return render_template('show_cart.html', user=user, cart=duplicate_amount, total_price=round(total_price))
 
 
 @app.route('/add_cart', methods=['POST'])
@@ -280,6 +376,111 @@ def delete_current_item(current_item_id):
     admins = ["jeff", "bezos"]
     cart_size = len(user['cart'])
     return render_template('user_welcome_page.html', user=user, admins=admins, items=items.find(), cart_size=cart_size, result=result)
+
+
+@app.route('/remove/cart/item', methods=['POST'])
+def remove_amount():
+    amount = request.form.get('quantity_delete')
+    item = items.find_one({'_id': ObjectId(request.form.get('item_id'))})
+    user = users.find_one({'_id': ObjectId(request.form.get('user_id'))})
+    cart = user['cart']
+    cart_index = 0
+    # Check for edge casing LATER
+    for recall in range(int(amount)):
+        for index in cart:
+            if ObjectId(index['_id']) == ObjectId(item['_id']):
+                cart.pop(cart_index)
+                break
+            cart_index += 1
+        cart_index = 0
+    user_update = {
+        'user': user['user'],
+        'password': user['password'],
+        'status': user['status'],
+        'cart': cart,
+        'admin_status': user['admin_status']
+        }
+    users.update_one({'_id': ObjectId(user['_id'])},
+                    {'$set': user_update})
+
+    duplicate_list = []
+    cart = user['cart']
+    cart_clone = cart
+    index_for_duplicate = 0
+    first = False
+    total_amount = 0
+    index_two = 0
+
+    for current_item in cart:
+        for item2 in cart_clone:
+            if current_item['_id'] == item2['_id']:
+                if first is True:
+                    check = False
+                    for x in duplicate_list:
+                        if ObjectId(current_item['_id']) != ObjectId(x['_id']):
+                            check = False
+                        else:
+                            check = True
+                    if (check is False):
+                        #dict_clone = {
+                        #    '_id': current_item['_id'],
+                        #    'image': current_item['image'],
+                        #    'name': current_item['_id'],
+                        #    'price': current_item['price'],
+                        #    'description': current_item['description']
+                        #}
+                        #duplicate_list.insert(index_two, dict_clone)
+                        duplicate_list.append(current_item)
+                        #index_for_duplicate += 1
+                elif index_for_duplicate == 0 and first is False:
+                    duplicate_list.append(current_item)
+                    first = True
+                    index_two += 1
+    # Filter once more
+    res_list = []
+    append_index = 0  # This is so we don't insert to last by default
+    for i in range(len(duplicate_list)):
+        if duplicate_list[i] not in duplicate_list[i + 1:]:
+            res_list.insert(append_index, duplicate_list[i])
+            append_index
+    print("This should only include non duplicate", res_list)
+    duplicate_amount = []
+    for x in res_list:
+        duplicate_amount.append(0)
+    index_for_total = 0
+    max = 0
+    second = False
+    print("Length of cart:", len(res_list))
+    print("This is the ids of clones:", res_list)
+    if len(res_list) != 0:
+        for duplicate in res_list:
+            for current_item_2 in cart:
+                if duplicate['_id'] == current_item_2['_id']:
+                    total_amount += 1
+                max += 1
+                print(max)
+            if max == len(cart):
+                if second is True:
+                    index_for_total += 1
+                duplicate_amount[index_for_total] = {
+                        'item': duplicate,
+                        'amount': total_amount
+                        }
+                total_amount = 0
+                max = 0
+                second = True
+    print("This is the list of amount per clone:", duplicate_amount)
+    # Finding total cost for all items
+    total_price = 0
+    for item in duplicate_amount:
+        total_price += float(item['item']['price'])
+        total_price *= float(item['amount'])
+    print("This is the final product:", duplicate_amount)
+
+    return render_template('show_cart.html', user=user, cart=duplicate_amount, total_price=round(total_price))
+
+
+    # This is where it ends
 
 
 @app.route('/userpage', methods=['POST'])

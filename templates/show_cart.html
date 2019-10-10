@@ -23,6 +23,7 @@
     <form method = 'POST' action = '/remove/cart/item'>
         <input type = 'hidden' name = 'item_id' value = '{{cart_items["item"]._id}}'>
         <input type = 'hidden' name = 'user_id' value = '{{user._id}}'>
+        Type amount you want to Remove:<input type = 'text' name = 'quantity_delete'>
         <Button type = 'submit'>REMOVE</Button>
     </form>
 </div>
