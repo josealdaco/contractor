@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import os
@@ -36,7 +36,8 @@ def login_page():
             'status': False,  # decides if user is offline
             'cart': [],
             'personal_item': [],
-            'admin_status': False
+            'admin_status': False,
+            'ip_address': jsonify({'ip': request.remote_addr})
 
         }
         print("This is the desired new account:", new_user)
@@ -86,7 +87,8 @@ def publish_inventory():
             'image': request.form.get('image'),
             'name': request.form.get('name'),
             'price': request.form.get('price'),
-            'description': request.form.get('description')
+            'description': request.form.get('description'),
+            'seller_ip': seller['ip_address']
             }
     if new == 'True' or new_approval == 'True':  # If admin is making new item
         items.insert_one(item)
