@@ -176,6 +176,8 @@ def show_users():
 @app.route('/delete_all', methods=['POST'])
 def delete_all():
     db.users.drop()  # Delete all users
+    db.items.drop()
+    db.seller_items()
     error = request.args.get('error')
     return render_template('login_page.html', users=users.find(), error=error)
 
