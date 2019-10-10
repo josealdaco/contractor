@@ -77,6 +77,7 @@ def publish_inventory():
     new_approval = request.form.get('approval')
     seller = users.find_one({'_id': ObjectId(request.form.get('seller'))})
     id = request.form.get('_id')
+    print("This is the ID WE GET:", id)
     if seller is None:
         item = {
             'seller': 'Amazonia',
@@ -92,7 +93,6 @@ def publish_inventory():
             'name': request.form.get('name'),
             'price': request.form.get('price'),
             'description': request.form.get('description'),
-            'seller_ip': seller['ip_address']
             }
     if new == 'True' or new_approval == 'True':  # If admin is making new item
         items.insert_one(item)
